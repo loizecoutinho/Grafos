@@ -1,0 +1,44 @@
+/*02. Lista de adjacência de grafos direcionados*/
+package grafos;
+import java.util.*;
+
+public class GrafosD {
+	//cria um mapa chamado adjacencia que irá armazenar os vertices e arestas
+	private Map<Integer, Set<Integer>> adjacencia; //"set" serve para não permitir duplicatas
+	
+	//construtor que inicializa o mapa
+	public GrafosD() {
+		// TODO Auto-generated constructor stub
+		adjacencia = new HashMap<>();
+	}
+	
+	public void adicionarVertices(int no) {
+		//adiciona o vertice à lista adjacente se o espaço estiver vazio
+
+		adjacencia.putIfAbsent(no, new HashSet<>());
+		
+	}
+
+	public void adicionarAresta(int V1, int V2) {
+		//onde V1 atua como origem e V2 como destino
+		adicionarVertices(V1);
+		adicionarVertices(V2);
+		adjacencia.get(V1).add(V2);   //V1->V2; aresta unilateral
+	}
+	
+	public void imprimir() {
+		//percorre todo o vertice e imprime o vertice seguido da sua lista de adjacencia
+       for (int vertice : adjacencia.keySet()) {
+           System.out.println(vertice + " -> " + adjacencia.get(vertice));  //adjacencia.get()serve para mostrar os 'vizinhos"
+       }
+	}
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		GrafosD grafo = new GrafosD();//inicializaçaõ do meu mapa vazio;
+		grafo.adicionarAresta(1, 2);  //1->2
+		grafo.adicionarAresta(1, 3);  //1-3
+		grafo.adicionarAresta(2, 4);  //2-4
+		grafo.imprimir();
+	}
+}
