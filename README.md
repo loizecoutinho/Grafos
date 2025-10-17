@@ -1,6 +1,7 @@
-# Grafos
-Implementação de algoritmos para desenvolvimento e manipulação de Grafos não direcionados e Dígrafos como requisito de aprovação para a matéria de Estrutura de Dados II
-Algoritmos:
+# Grafos 🎲
+Implementação, em Java♨️, de algoritmos para desenvolvimento, manipulação e busca de Grafos não direcionados e Dígrafos como requisito de aprovação para a matéria de Estrutura de Dados II
+
+💻Algoritmos:
 01. Lista de adjacência de grafos não direcionados
 02. Lista de adjacência de grafos direcionados
 03. Menor caminho de grafos direcionados
