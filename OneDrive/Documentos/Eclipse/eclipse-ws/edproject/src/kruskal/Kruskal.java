@@ -3,15 +3,20 @@
  */
 package kruskal;
 import java.util.*;
+import estrutura.GrafoND;
+import estrutura.Aresta;
+
 
 public class Kruskal {
-	private Grafo grafo;
+	private GrafoND grafo;
+    //Armazena o resultado do cálculo da MST
+    private Set<Aresta> mstResult; 
 	
-	public Kruskal(Grafo grafo) {
+	public Kruskal(GrafoND grafo) {
 		this.grafo = grafo;
 	}
 	
-	public List<Aresta> ordenacaoArestas(Grafo grafo) {
+	public List<Aresta> ordenacaoArestas(GrafoND grafo) {
 		//extrai as arestas do grafo
 		Set<Aresta> arestaSet = grafo.extractAllEdges();
 		
@@ -72,23 +77,33 @@ public class Kruskal {
             }
         }
 
-        // 9. Devolver X (Linha 11)
+        this.mstResult = X; 
         return X;
     }
-
-	
-	
-	public static void main(String[] args) {
-		Grafo g = new Grafo();
-	  	g.adicionarAresta(0, 1, 4);
-	  	g.adicionarAresta(0, 2, 1);
-	  	g.adicionarAresta(2, 1, 2);
-	  	g.adicionarAresta(1, 3, 1);
-	  	g.adicionarAresta(2, 3, 5);
-	  	
-	  	Kruskal arvore = new Kruskal(g);
-	  	arvore.kruskalMST();
-	}
+    //MÉTODO DE IMPRESSÃO
+    public void imprimirMSTECustoTotal() {
+        
+        // Verifica se o cálculo já foi feito (evita NullPointerException)
+        if (this.mstResult == null) {
+            // Se a MST ainda não foi calculada, chamamos o método principal.
+            // Isso garante que o estado `mstResult` seja preenchido.
+            System.out.println("MST não calculada. Executando algoritmo de Kruskal...");
+            kruskalMST(); 
+        }
+        
+        double custoTotal = 0;
+        
+        System.out.println("\n--- Árvore Geradora Mínima (MST) - Algoritmo de Kruskal ---");
+        
+        // Acessa o atributo de instância
+        for (Aresta aresta : this.mstResult) { 
+            System.out.println("Aresta: " + aresta.getOrigem() + " - " + aresta.getDestino() + " | Peso: " + aresta.getPeso());
+            custoTotal += aresta.getPeso(); 
+        }
+        
+        System.out.println("\nNúmero total de arestas na MST: " + this.mstResult.size());
+        System.out.println("Custo Total da MST: " + custoTotal);
+    }
 	
 }
 

@@ -3,6 +3,7 @@
  */
 package dijkstra;
 import java.util.*;
+import estrutura.Digrafo;
 
 public class DijkstraDirecionado {
   private Digrafo grafo;
@@ -50,15 +51,5 @@ public class DijkstraDirecionado {
       }
       System.out.print(destino + " ");
   }
-  public static void main(String[] args) {
-  	// TODO Auto-generated method stub
-  	Digrafo g = new Digrafo();
-  	g.adicionarAresta(0, 1, 1);
-  	g.adicionarAresta(0, 2, 1);
-  	g.adicionarAresta(2, 1, 1);
-  	g.adicionarAresta(1, 3, 1);
-  	g.adicionarAresta(2, 3, 1);
-  	DijkstraDirecionado busca = new DijkstraDirecionado(g);
-  	busca.dijkstra(0);
-  }
+
 }

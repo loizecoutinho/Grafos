@@ -3,6 +3,7 @@
  */
 package dijkstra;
 import java.util.*;
+import estrutura.GrafoND;
 
 public class DijkstraND{
 	private GrafoND grafo;
@@ -50,17 +51,7 @@ public class DijkstraND{
   		}
   		System.out.print(destino + " ");
   	}
-  	public static void main(String[] args) {
-  		// TODO Auto-generated method stub
-  		GrafoND g = new GrafoND();
-  		g.adicionarAresta(0, 1, 4);
-  		g.adicionarAresta(0, 2, 1);
-  		g.adicionarAresta(2, 1, 2);
-  		g.adicionarAresta(1, 3, 1);
-  		g.adicionarAresta(2, 3, 5);
-  		DijkstraND busca = new DijkstraND(g);
-  		busca.dijkstra(0);
-  	}
+
 }
 
 
