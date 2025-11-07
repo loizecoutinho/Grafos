@@ -1,4 +1,4 @@
-package com.dijkstra;
+package dijkstra;
 import java.util.*;
 import com.estrutura.GrafoND;
 
