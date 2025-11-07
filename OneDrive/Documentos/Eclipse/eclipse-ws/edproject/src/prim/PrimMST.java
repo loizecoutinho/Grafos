@@ -1,153 +1,154 @@
 package prim;
 import java.util.*;
-import estrutura.GrafoND;
+import com.estrutura.GrafoND;
 
 public class PrimMST {
-    // Constante para representar "infinito" (custo máximo)
+    
+    // Constante para representar "infinito"
     private static final int INFINITY = Integer.MAX_VALUE;
 
-    /*
-     *  G O grafo não-direcionado valorado.
-     * origem O vértice de onde o algoritmo deve começar.
-     *  Um mapa que representa a MST, onde a chave é o vértice e o valor é o seu pai/gancho na MST.
+    /**
+     * @param G O grafo não-direcionado e ponderado.
+     * @param origem O vértice de onde o algoritmo deve começar (a "raiz").
+     * @return Um mapa que representa a MST, onde a Chave é o vértice e o Valor é o seu "pai" na árvore.
      */
     public Map<Integer, Integer> arvoreGeradoraMinima(GrafoND G, int origem) {
-        
-        // O algoritmo de Prim trabalha em grafos não-dirigidos com custos nas arestas [3, 7].
-        // Usaremos as estruturas auxiliares (pai, preco, inMST) [14-16].
-
-        // 1. Estruturas Auxiliares
-        
-        // Map<Vértice, Pai> : Armazena a MST final (pai[v] é o gancho que conecta v à árvore) [14, 15].
+        // Map<Vértice, Pai>: Armazena a MST final
         Map<Integer, Integer> pai = new HashMap<>(); 
         
-        // Map<Vértice, Preco> : Armazena o custo mínimo para conectar o vértice à árvore T [13, 15].
+        // Map<Vértice, Preco>: Armazena o CUSTO MÍNIMO para conectar um vértice 'v',fora do mst,
+        //a QUALQUER vértice que já esteja DENTRO da MST
         Map<Integer, Integer> preco = new HashMap<>();
         
-        // Set<Vértice> : Rastreia quais vértices já estão na MST (a subárvore T) [15, 17].
+        // Set<Vértice>: Rastreia quais vértices já foram incluídos na MST
         Set<Integer> inMST = new HashSet<>();
 
-        // Obtém todos os vértices do grafo
+        // pega todos os vértices do grafo
         Set<Integer> vertices = G.getVertices();
 
-        // 2. Inicialização
-        
-        // Inicializa pai e preco para todos os vértices [15].
+        // Prepara as estruturas para todos os vértices
         for (int v : vertices) {
-            preco.put(v, INFINITY); // Todos os preços iniciais são "infinito" [15].
-            pai.put(v, -1);         // -1 indica "sem pai" ou indefinido [15, 18].
+            // O custo inicial para alcançar qualquer vértice é "infinito"
+            preco.put(v, INFINITY);
+            // O pai inicial é indefinido
+            pai.put(v, -1); 
         }
 
-        // O vértice de origem tem preço 0 para ser escolhido primeiro [15].
+        // O custo para alcançar a 'origem'é 0
         preco.put(origem, 0); 
-        pai.put(origem, origem); // A raiz aponta para si mesma [15, 19].
+        
+        //a raiz apontar para si mesma serve para identifica-la
+        pai.put(origem, origem);
 
-        // 3. Processo Iterativo (V iterações)
+        // O loop deve executar V vezes
         int V = vertices.size();
-        // Repete V-1 vezes para construir a MST com V-1 arestas, ou até que a franja esvazie [20].
-        // O laço continua até que todos os vértices sejam incluídos ou o grafo seja desconexo.
         for (int count = 0; count < V; count++) {
             
-            // 3.1. Encontrar o vértice u não incluído com o menor preço (busca gulosa) [10, 11, 13].
-            int u = encontrarMinimoPreco(preco, inMST, vertices);
+            // encontra o vértice 'u' com o menor 'preco' que ainda não ta na mst
+            int u = encontrarMinimoPreco(preco, inMST, vertices);//guloso
 
-            // Se o menor preço for INFINITY, o grafo é desconexo, e a busca deve parar [6, 21, 22].
-            if (preco.get(u) == INFINITY) {
-                // Se a MST não incluir todos os vértices, o grafo original G não era conexo [6, 20].
-                break; 
+            // Se 'u' for -1  ou seu preço for infinito significa que não há mais vértices alcançáveis
+            // Se inMST.size() < V, o grafo é desconexo
+            if (u == -1 || preco.get(u) == INFINITY) {
+                break; // Interrompe o loop
             }
 
-            // Adiciona o vértice escolhido à MST [9, 15].
+            // Adiciona o vértice 'u' à MST
             inMST.add(u);
 
-            // 3.2. Atualização de Preços e Ganchos
             
-            // Percorre todos os vizinhos de u para atualizar a fronteira [14, 15].
-            // A sua classe GrafoNDirecionado usa 'adjacencia.get(u)' para obter Map<vizinho, peso> [2].
+            // pega o mapa de vizinhos de 'u'
             Map<Integer, Integer> vizinhos = G.getVizinhos(u);
             
+             //verifica os vizinho(v) de u e checa se 'u' oferece um caminho mais barato para eles           
             if (vizinhos != null) {
+                // Itera sobre cada vizinho 'v' e o peso da aresta
                 for (Map.Entry<Integer, Integer> aresta : vizinhos.entrySet()) {
                     int v = aresta.getKey();
-                    int peso = aresta.getValue(); // f(u, v) [16].
-                    
-                    // Se v ainda não está na MST (inMST) E o peso da aresta (u, v) é menor 
-                    // que o preço atual de v [14, 15].
+                    int peso = aresta.getValue(); // Peso da aresta (u, v)
+
+                    // O vizinho 'v' ainda não pode estar na MST
+                    // O 'peso' da aresta (u, v) deve ser menor que o 'preco' atual que temos armazenado para 'v'
                     if (!inMST.contains(v) && peso < preco.get(v)) {
                         
-                        // Atualiza o preço: o novo custo mais barato para v é o peso desta aresta [15].
+                        //O novo custo mais barato para 'v' é 'peso'
                         preco.put(v, peso); 
                         
-                        // Atualiza o gancho: u é agora o melhor pai para v [14, 15].
+                        // 'u' é agora o melhor pai para 'v'
                         pai.put(v, u); 
                     }
                 }
             }
         }
         
-        // O mapa 'pai' contém a MST. Vértices com pai = -1 (exceto a raiz se pai[origem] = origem)
-        // ou preco = INFINITY indicam que o grafo não era conexo [22].
+        // Retorna o mapa 'pai'
         return pai; 
     }
 
     /**
-     * Função auxiliar para encontrar o vértice com o menor custo que ainda não está na MST.
-     * Esta é a parte O(V) da iteração (resultando em O(V^2) total) [8].
+     * Encontra o vértice com o menor 'preco' que ainda não está na MST
      */
     private int encontrarMinimoPreco(Map<Integer, Integer> preco, Set<Integer> inMST, Set<Integer> todosVertices) {
-        int min = INFINITY;
-        int minVertex = -1;
+        int min = INFINITY; // Começa com o mínimo como "infinito"
+        int minVertex = -1; // Vértice de custo mínimo (não encontrado)
 
-        // Percorre todos os vértices para encontrar o mínimo preço (O(V)) [15].
+        // Itera sobre os vértices do grafo
         for (int v : todosVertices) {
-            // Verifica se o vértice não está na árvore E se tem um preço menor que o mínimo atual [15].
+            
+            // Se o vértice 'v' não está na MST e seu preço é o menor até agora
             if (!inMST.contains(v) && preco.get(v) < min) {
-                min = preco.get(v);
+                min = preco.get(v);//o minimo é atualizado
                 minVertex = v;
             }
         }
         
-        // Retorna o vértice de preço mínimo. Se retornar -1, significa que todos os vértices 
-        // alcançáveis já foram incluídos, ou o grafo é vazio/desconexo no início.
+        // Retorna o vértice que deve ser adicionado à MST
+        // Retorna -1 se não encontrar ninguém 
         return minVertex; 
     }
 
     /**
-     * Imprime as arestas da MST e calcula o custo total, usando o grafo original para buscar os pesos das arestas da MST.
-     * G O grafo não-direcionado original.
-     * mstPais O mapa de pais (resultado da MST).
-     * origem O vértice raiz escolhido.
+     * Imprime as arestas da MST e calcula o custo total
+     * @param G O grafo não-direcionado original (usado para buscar os pesos).
+     * @param mstPais O mapa de pais (resultado da MST).
+     * @param origem O vértice raiz escolhido.
      */
     public void imprimirMSTECustoTotal(GrafoND G, Map<Integer, Integer> mstPais, int origem) {
         
-        System.out.println("--- Resultado da MST (Raiz: " + origem + ") ---");
+        System.out.println("\n--- Árvore Geradora Mínima (MST) - Algoritmo de Prim (Raiz: " + origem + ") ---");
         double custoTotal = 0;
 
+        // Itera sobre todos os vértices para encontrar suas arestas na MST
         for (int vertice : G.getVertices()) {
-            int pai = mstPais.getOrDefault(vertice, -1); // Usa getOrDefault para segurança
+            // pega o pai do vértice atual
+            int pai = mstPais.getOrDefault(vertice, -1); 
             
+            // Se o vértice é a raiz
             if (vertice == origem) {
-                // A raiz
                 System.out.println("Vértice " + vertice + " (Raiz)");
             } 
+            // Se o vértice tem um pai (não é a raiz e foi alcançado)
             else if (pai != -1) {
-                // Para vértices na MST: obtém o peso da aresta do pai para o vértice
+                
+                // O mapa 'pai' só diz a conexão, não o peso
+                // Buscamos o peso no grafo original
                 Map<Integer, Integer> vizinhosDoPai = G.getVizinhos(pai);
                 
-                // O método getVizinhos é crucial para obter o peso de forma encapsulada.
+                // pega o peso da aresta específica
                 Integer pesoAresta = vizinhosDoPai.get(vertice); 
                 
                 if (pesoAresta != null) {
+                    // Imprime a aresta e seu peso
                     System.out.println("Aresta: " + pai + " - " + vertice + " | Peso: " + pesoAresta);
+                    // Adiciona o peso ao custo total
                     custoTotal += pesoAresta;
                 }
             } else {
-                 // Este caso só acontece se o grafo for desconexo e o vértice não for a origem
-                 System.out.println("Vértice " + vertice + " não alcançado (Grafo Desconexo)");
+                // Se 'pai' é -1 e não é a raiz, o vértice é inalcançável
+                System.out.println("Vértice " + vertice + " não alcançado (Grafo Desconexo)");
             }
         }
         
         System.out.println("\nCusto Total da MST: " + custoTotal); 
     }
-    
 }
