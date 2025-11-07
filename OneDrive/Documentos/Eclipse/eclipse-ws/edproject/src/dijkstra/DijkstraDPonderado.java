@@ -2,7 +2,7 @@
  * Implementa o Algoritmo de Dijkstra para encontrar o menor caminho
  * em grafos direcionados e ponderados(positivos).
  */
-package com.dijkstra;
+package dijkstra;
 import java.util.*;
 import com.estrutura.Digrafo;
 
