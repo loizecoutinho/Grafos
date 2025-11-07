@@ -1,109 +1,126 @@
 /*
- * Arvore geradora mínima - kruskal
+ * Implementa o algoritmo de Kruskal para encontrar a Árvore Geradora Mínima (MST) em um grafo não-direcionado e ponderado
  */
 package kruskal;
 import java.util.*;
-import estrutura.GrafoND;
-import estrutura.Aresta;
+import com.estrutura.GrafoND;
+import com.estrutura.Aresta;
 
 
 public class Kruskal {
-	private GrafoND grafo;
-    //Armazena o resultado do cálculo da MST
+   
+    private GrafoND grafo;
+    
+    // Armazena as arestas da MST  depois que for calculado
+    // Isso serve como um "cache" para o método de impressão
     private Set<Aresta> mstResult; 
-	
-	public Kruskal(GrafoND grafo) {
-		this.grafo = grafo;
-	}
-	
-	public List<Aresta> ordenacaoArestas(GrafoND grafo) {
-		//extrai as arestas do grafo
-		Set<Aresta> arestaSet = grafo.extractAllEdges();
-		
-		//converte o Set para List(ordenaveis)
-		List<Aresta> arestaOrdenada = new ArrayList<>(arestaSet);
-		
-		//ordenação da lista
-		//Collections.sort usa a função compareTo
-		Collections.sort(arestaOrdenada);
-		
-		return arestaOrdenada;
-	}
+
+    public Kruskal(GrafoND grafo) {
+        this.grafo = grafo;
+    }
+    
+    /**
+     * Extrai todas as arestas do grafo e as ordena em ordem crescente de peso
+     * @param grafo O grafo de onde extrair as arestas
+     * @return Uma Lista de Arestas, ordenada do menor peso para o maior
+     */
+    public List<Aresta> ordenacaoArestas(GrafoND grafo) {
+        //extrai todas as arestas únicas do grafo
+        Set<Aresta> arestaSet = grafo.extractAllEdges();
+        
+        //converte o Set para uma List 
+        List<Aresta> arestaOrdenada = new ArrayList<>(arestaSet);
+        
+        //ordenação da lista
+        Collections.sort(arestaOrdenada);
+        
+        // Retorna a lista de arestas
+        return arestaOrdenada;
+    }
 
 /////////////////////////////////////UNION-FIND///////////////////////////////////////
+// 1. find(u): Diz a qual "componente" o vértice 'u' pertence
+// 2. union(u, v): Une os componentes dos vértices 'u' e 'v' em um só
+////////////////////////////////////////////////////////////////////////////////////
 
-	/**
-     * @return O conjunto de arestas (X) que formam a MST.
+    /**
+     * Executa o algoritmo de Kruskal para encontrar a MST
+     * @return O conjunto de arestas que formam a MST
      */
     public Set<Aresta> kruskalMST() {
-        // 1. Arestas ordenadas (Linha 1)
+        // pega a lista de todas as arestas, ordenadas por peso crescente
         List<Aresta> arestaOrdenada = ordenacaoArestas(this.grafo);
         
-        // Assumindo que o número de vértices n é 
-        // o tamanho do conjunto de vértices do seu grafo
+        // pega o número total de vértices no grafo
         int n = grafo.getVertices().size(); 
 
-        // 2. Inicializar X (a MST) (Linha 2)
-        Set<Aresta> X = new HashSet<>();
-        
-        // 3. Inicializar a estrutura Union-Find (Linha 3)
-        // Nota: Assumindo que os IDs dos vértices são contínuos de 0 a n-1
-        // Se não forem, você precisará de um mapeamento de ID para Índice de array.
+        // Inicializa o conjunto mst como um conjunto vazio
+        Set<Aresta> mst = new HashSet<>();
+
+        //começa com 'n' componentes, onde cada vértice é seu próprio componente
+        //IDs dos vértices: 0 a n-1
         UnionFind uf = new UnionFind(n); 
 
-        // 4. Iterar sobre as arestas ordenadas (Linhas 4-10)
+        // Itera sobre cada aresta, da mais barata para a mais cara
         for (Aresta uv : arestaOrdenada) {
-            int u = uv.getOrigem(); // Vértice de origem
-            int v = uv.getDestino(); // Vértice de destino
+            // Pega os dois vértices da aresta
+            int u = uv.getOrigem(); 
+            int v = uv.getDestino();
 
-            // 5. Encontrar os diretores (Linhas 6 e 7)
+            // Encontra o diretor do conjunto que'u' pertence
             int diretorU = uf.encontra(u); // r := Find(u)
+            // Encontra o diretor do conjunto que'v' pertence
             int diretorV = uf.encontra(v); // s := Find(v)
 
-            // 6. Verificar se formam ciclo (Linha 8)
-            // A aresta é externa à floresta se r ≠ s [1, 3].
+            // Se os representantes são DIFERENTES, significa que adicionar a aresta não formará um ciclo
             if (diretorU != diretorV) { 
-                
-                // 7. Adicionar à MST (Linha 9)
-                X.add(uv); 
-                
-                // 8. Unir as componentes (Linha 10)
+                // Adiciona a aresta 'uv' à MST
+                mst.add(uv); 
+                // Une os dois componentes em um só
+                // 'u', 'v' e todos os seus "vizinhos de componente" pertencem ao mesmo conjunto
                 uf.uniao(diretorU, diretorV); 
-                
-                // Opcional: O Kruskal para quando |X| = n - 1 (para grafos conexos)
-                if (X.size() == n - 1) {
-                    break; 
+
+                // Uma MST com 'n' vértices sempre terá 'n-1' arestas
+                if (mst.size() == n - 1) {
+                    break; // Interrompe o loop 'for'
                 }
             }
+
         }
 
-        this.mstResult = X; 
-        return X;
+        // Armazena mst  na variável da classe para impressão
+        this.mstResult = mst; 
+        
+        // Retorna o conjunto de arestas que compõem a MST
+        return mst;
     }
-    //MÉTODO DE IMPRESSÃO
+    
+    /**
+     * Imprime as arestas da MST e o custo total
+     */
     public void imprimirMSTECustoTotal() {
         
-        // Verifica se o cálculo já foi feito (evita NullPointerException)
+        // Verifica se a mst ja foi criada/calculada 
         if (this.mstResult == null) {
-            // Se a MST ainda não foi calculada, chamamos o método principal.
-            // Isso garante que o estado `mstResult` seja preenchido.
             System.out.println("MST não calculada. Executando algoritmo de Kruskal...");
             kruskalMST(); 
         }
         
+        // Inicializa o acumulador de custo
         double custoTotal = 0;
         
         System.out.println("\n--- Árvore Geradora Mínima (MST) - Algoritmo de Kruskal ---");
         
-        // Acessa o atributo de instância
+        // Itera sobre as arestas que estão no 'mstResult'
         for (Aresta aresta : this.mstResult) { 
+            // Imprime os detalhes da aresta
             System.out.println("Aresta: " + aresta.getOrigem() + " - " + aresta.getDestino() + " | Peso: " + aresta.getPeso());
+            // Soma o peso da aresta ao custo total
             custoTotal += aresta.getPeso(); 
         }
         
+        // Imprime o resumo final
         System.out.println("\nNúmero total de arestas na MST: " + this.mstResult.size());
         System.out.println("Custo Total da MST: " + custoTotal);
     }
-	
 }
-
