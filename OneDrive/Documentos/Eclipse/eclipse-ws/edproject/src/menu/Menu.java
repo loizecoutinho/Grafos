@@ -1,23 +1,17 @@
 package menu;
 import java.util.*;
-import estrutura.GrafoND;
-import estrutura.Digrafo;
-import estrutura.Aresta;
+import com.estrutura.GrafoND;
+import com.estrutura.Digrafo;
+import com.estrutura.Aresta;
+import com.dijkstra.DijkstraDirecionado;
+import com.dijkstra.DijkstraDPonderado;
+import com.dijkstra.DijkstraND;
+import com.dijkstra.DijkstraNDPonderado;
+import com.kruskal.Kruskal;
+import com.prim.PrimMST;
+import com.apagareverso.ApagaReverso;
+import com.ordenacao.OrdenacaoPeso;
 
-// Importa as classes principais dos algoritmos
-import dijkstra.DijkstraDirecionado;
-import dijkstra.DijkstraDPonderado;
-import dijkstra.DijkstraND;
-import dijkstra.DijkstraNDPonderado;
-import kruskal.Kruskal;
-import prim.PrimMST;
-import apagareverso.ApagaReverso;
-import ordenacao.OrdenacaoPeso;
-
-/**
- * Classe principal refatorada.
- * Agora utiliza as classes centrais do pacote 'core'.
- */
 public class Menu {
 	
     private static void exibirMenu() {
@@ -64,51 +58,43 @@ public class Menu {
                     System.out.println("Executando: Lista de Adjacência (Não-Direcionado)\n");
                     // Agora usa o Grafo do 'estrutura'
                     GrafoND grafo = new GrafoND(); 
-                    grafo.adicionarAresta(1, 2, 0);
-                    grafo.adicionarAresta(1, 3, 0);
-                    grafo.adicionarAresta(2, 4, 0);
+                    grafo.adicionarAresta(0, 1, 2);
+                    grafo.adicionarAresta(0, 2, 3);
+                    grafo.adicionarAresta(0, 3, 5);
+                    grafo.adicionarAresta(1, 2, 2);
+                    grafo.adicionarAresta(2, 3, 5);
                     grafo.imprimir();
                     break;
                 case 2:
                     System.out.println("Executando: Lista de Adjacência (Direcionado)\n");
-                    // Agora usa o Digrafo do 'core'
+                    // Agora usa o Digrafo do 'estrutura'
                     Digrafo digrafo = new Digrafo(); 
-                    digrafo.adicionarAresta(1, 2, 0);
-                    digrafo.adicionarAresta(1, 3, 0);
-                    digrafo.adicionarAresta(2, 4, 0);
+                    digrafo.adicionarAresta(0, 1, 2);//2
+                    digrafo.adicionarAresta(0, 2, 3);
+                    digrafo.adicionarAresta(0, 3, 5);//3
+                    digrafo.adicionarAresta(1, 2, 2);//3
+                    digrafo.adicionarAresta(2, 3, 5);//3
                     digrafo.imprimir();
                     break;
                 case 3:
                     System.out.println("Executando: Menor Caminho (Dijkstra - Direcionado)\n");
                     Digrafo dDijkstra = new Digrafo();
                     dDijkstra.adicionarAresta(0, 1, 1);
-                    dDijkstra.adicionarAresta(0, 2, 1);
                     dDijkstra.adicionarAresta(0, 3, 1);
+                    dDijkstra.adicionarAresta(3, 2, 1);
                     dDijkstra.adicionarAresta(1, 2, 1);
-                    dDijkstra.adicionarAresta(1, 4, 1);
-                    dDijkstra.adicionarAresta(2, 3, 1);
-                    dDijkstra.adicionarAresta(2, 4, 1);
-                    dDijkstra.adicionarAresta(2, 5, 1);
-                    dDijkstra.adicionarAresta(3, 4, 1);
-                    dDijkstra.adicionarAresta(3, 5, 1);
-                    dDijkstra.adicionarAresta(4, 5, 1);
+                    dDijkstra.adicionarAresta(2, 1, 1);
                     DijkstraDirecionado buscaDir = new DijkstraDirecionado(dDijkstra);
                     buscaDir.dijkstra(0);
                     break;
                 case 4:
                     System.out.println("Executando: Menor Caminho (Dijkstra - Direcionado Ponderado)\n");
                     Digrafo dPDijkstra = new Digrafo();
-                    dPDijkstra.adicionarAresta(0, 1, 6);
-                    dPDijkstra.adicionarAresta(0, 2, 1);
-                    dPDijkstra.adicionarAresta(0, 3, 5);
-                    dPDijkstra.adicionarAresta(1, 2, 2);
-                    dPDijkstra.adicionarAresta(1, 4, 5);
-                    dPDijkstra.adicionarAresta(2, 3, 2);
-                    dPDijkstra.adicionarAresta(2, 4, 6);
-                    dPDijkstra.adicionarAresta(2, 5, 4);
-                    dPDijkstra.adicionarAresta(3, 4, 3);
-                    dPDijkstra.adicionarAresta(3, 5, 4);
-                    dPDijkstra.adicionarAresta(4, 5, 5); 
+                    dPDijkstra.adicionarAresta(0, 1, 2);
+                    dPDijkstra.adicionarAresta(0, 3, 3);
+                    dPDijkstra.adicionarAresta(3, 2, 1);
+                    dPDijkstra.adicionarAresta(1, 2, 3);
+                    dPDijkstra.adicionarAresta(2, 1, 3); 
                     DijkstraDPonderado buscaDirP = new DijkstraDPonderado(dPDijkstra);
                     buscaDirP.dijkstra(0);
                     break;
@@ -116,50 +102,32 @@ public class Menu {
                     System.out.println("Executando: Menor Caminho (Dijkstra - Não-Direcionado)\n");
                     GrafoND gDijkstra = new GrafoND();
                     gDijkstra.adicionarAresta(0, 1, 1);
-                    gDijkstra.adicionarAresta(0, 2, 1);
                     gDijkstra.adicionarAresta(0, 3, 1);
                     gDijkstra.adicionarAresta(1, 2, 1);
-                    gDijkstra.adicionarAresta(1, 4, 1);
                     gDijkstra.adicionarAresta(2, 3, 1);
-                    gDijkstra.adicionarAresta(2, 4, 1);
-                    gDijkstra.adicionarAresta(2, 5, 1);
-                    gDijkstra.adicionarAresta(3, 4, 1);
-                    gDijkstra.adicionarAresta(3, 5, 1);
-                    gDijkstra.adicionarAresta(4, 5, 1);
+                    gDijkstra.adicionarAresta(0, 2, 1);
                     DijkstraND buscaND = new DijkstraND(gDijkstra);
                     buscaND.dijkstra(0);
                     break;
                 case 6:
                     System.out.println("Executando: Menor Caminho (Dijkstra - Não-Direcionado Ponderado)\n");
                     GrafoND gPDijkstra = new GrafoND();
-                    gPDijkstra.adicionarAresta(0, 1, 6);
-                    gPDijkstra.adicionarAresta(0, 2, 1);
+                    gPDijkstra.adicionarAresta(0, 1, 2);
                     gPDijkstra.adicionarAresta(0, 3, 5);
                     gPDijkstra.adicionarAresta(1, 2, 2);
-                    gPDijkstra.adicionarAresta(1, 4, 5);
-                    gPDijkstra.adicionarAresta(2, 3, 2);
-                    gPDijkstra.adicionarAresta(2, 4, 6);
-                    gPDijkstra.adicionarAresta(2, 5, 4);
-                    gPDijkstra.adicionarAresta(3, 4, 3);
-                    gPDijkstra.adicionarAresta(3, 5, 4);
-                    gPDijkstra.adicionarAresta(4, 5, 5); 
+                    gPDijkstra.adicionarAresta(2, 3, 5);
+                    gPDijkstra.adicionarAresta(0, 2, 3);
                     DijkstraNDPonderado buscaNDP = new DijkstraNDPonderado(gPDijkstra);
                     buscaNDP.dijkstra(0);
                     break;
                 case 7:
                     System.out.println("Executando: Árvore Geradora Mínima (Kruskal)\n");
                     GrafoND gKruskal = new GrafoND();
-                    gKruskal.adicionarAresta(0, 1, 6);
-                    gKruskal.adicionarAresta(0, 2, 1);
+                    gKruskal.adicionarAresta(0, 1, 2);
                     gKruskal.adicionarAresta(0, 3, 5);
                     gKruskal.adicionarAresta(1, 2, 2);
-                    gKruskal.adicionarAresta(1, 4, 5);
-                    gKruskal.adicionarAresta(2, 3, 2);
-                    gKruskal.adicionarAresta(2, 4, 6);
-                    gKruskal.adicionarAresta(2, 5, 4);
-                    gKruskal.adicionarAresta(3, 4, 3);
-                    gKruskal.adicionarAresta(3, 5, 4);
-                    gKruskal.adicionarAresta(4, 5, 5); 
+                    gKruskal.adicionarAresta(2, 3, 5);
+                    gKruskal.adicionarAresta(0, 2, 3);
 
                     Kruskal arvoreKruskal = new Kruskal(gKruskal);
                     arvoreKruskal.kruskalMST();
@@ -169,40 +137,28 @@ public class Menu {
                 case 8:
                     System.out.println("Executando: Árvore Geradora Mínima (Prim)\n");
                     GrafoND gPrim = new GrafoND();
-                    gPrim.adicionarAresta(0, 1, 6);
-                    gPrim.adicionarAresta(0, 2, 1);
+                    gPrim.adicionarAresta(0, 1, 2);
                     gPrim.adicionarAresta(0, 3, 5);
                     gPrim.adicionarAresta(1, 2, 2);
-                    gPrim.adicionarAresta(1, 4, 5);
-                    gPrim.adicionarAresta(2, 3, 2);
-                    gPrim.adicionarAresta(2, 4, 6);
-                    gPrim.adicionarAresta(2, 5, 4);
-                    gPrim.adicionarAresta(3, 4, 3);
-                    gPrim.adicionarAresta(3, 5, 4);
-                    gPrim.adicionarAresta(4, 5, 5); 
+                    gPrim.adicionarAresta(2, 3, 5);
+                    gPrim.adicionarAresta(0, 2, 3);
 
                     PrimMST primAlg = new PrimMST();
                     int origemPrim = 0;
                     // Chama a função principal que calcula a MST e retorna o mapa de pais
                     Map<Integer, Integer> mstPrim = primAlg.arvoreGeradoraMinima(gPrim, origemPrim);
-                    // APRESENTAÇÃO DO RESULTADO (Chamada do método refatorado)
+                    // APRESENTAÇÃO DO RESULTADO
                     primAlg.imprimirMSTECustoTotal(gPrim, mstPrim, origemPrim);
                     break;
                 case 9:
                     System.out.println("Executando: Árvore Geradora Mínima (Apaga-Reverso)\n");
                     GrafoND gApaga = new GrafoND();
                     // Arestas de alto custo serão testadas primeiro       
-                    gApaga.adicionarAresta(0, 1, 10);
-                    gApaga.adicionarAresta(0, 2, 1);
+                    gApaga.adicionarAresta(0, 1, 2);
                     gApaga.adicionarAresta(0, 3, 5);
                     gApaga.adicionarAresta(1, 2, 2);
-                    gApaga.adicionarAresta(1, 4, 8);
-                    gApaga.adicionarAresta(2, 3, 4);
-                    gApaga.adicionarAresta(2, 4, 6);
-                    gApaga.adicionarAresta(2, 5, 4);
-                    gApaga.adicionarAresta(3, 4, 3);
-                    gApaga.adicionarAresta(3, 5, 4);
-                    gApaga.adicionarAresta(4, 5, 15); 
+                    gApaga.adicionarAresta(2, 3, 5);
+                    gApaga.adicionarAresta(0, 2, 3);
 
                     ApagaReverso ar = new ApagaReverso(gApaga);
                     Set<Aresta> mstApaga = ar.apagaReversoMST();
@@ -211,17 +167,11 @@ public class Menu {
                 case 10:
                     System.out.println("Executando: Ordenação de Arestas por Peso\n");
                     GrafoND gOrdena = new GrafoND();
-                    gOrdena.adicionarAresta(0, 2, 1);
+                    gOrdena.adicionarAresta(0, 1, 2);
                     gOrdena.adicionarAresta(0, 3, 5);
                     gOrdena.adicionarAresta(1, 2, 2);
-                    gOrdena.adicionarAresta(1, 4, 8);
-                    gOrdena.adicionarAresta(2, 3, 4);
-                    gOrdena.adicionarAresta(2, 4, 6);
-                    gOrdena.adicionarAresta(2, 5, 4);
-                    gOrdena.adicionarAresta(3, 4, 3);
-                    gOrdena.adicionarAresta(3, 5, 4);
-                    gOrdena.adicionarAresta(4, 5, 15); 
-
+                    gOrdena.adicionarAresta(2, 3, 5);
+                    gOrdena.adicionarAresta(0, 2, 3);
                     OrdenacaoPeso op = new OrdenacaoPeso();
                     //ORDENAÇÃO CRESCENTE
                     List<Aresta> crescente = op.ordenarArestasCrescente(gOrdena);
@@ -243,7 +193,7 @@ public class Menu {
             if (executando) {
                  System.out.println("\n---======================================---");
                  System.out.print("Pressione Enter para voltar ao menu...");
-                 scanner.nextLine(); // Consome o \n anterior
+                 scanner.nextLine();
                  scanner.nextLine(); // Aguarda o Enter
             }
         }
