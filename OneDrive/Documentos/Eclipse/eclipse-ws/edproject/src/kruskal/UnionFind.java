@@ -1,78 +1,107 @@
+/**
+ *gerencia quais vértices já estão conectados
+ */
 package kruskal;
 
+/**
+ * otimizado com as heurísticas de
+ * "União por Rank" (no método uniao) e
+ * "Compressão de Caminho" (no método encontra).
+ */
 public class UnionFind {
-	// Array para armazenar o pai/diretor de cada vértice
+
+    // Se pai[i] == i, então 'i' é o diretor do seu conjunto
     private int[] pai;
-    // Array para armazenar o rank (ou rank/tamanho do conjunto) para otimizações
+    
+    // Array para armazenar o "rank" (tamanho) de cada conjunto
+    // Usado na "União por Rank" para manter as árvores "baixas".
     private int[] tamConjunto; 
+    
+    // O número total de vértices que a estrutura gerencia
     private int numVertices;
-	
-    /* Implementa o passo Initialize().
-    * Prepara a estrutura de diretores.
-    */
-   public UnionFind(int n) {
-       this.numVertices = n;
-       pai = new int[n];
-       tamConjunto = new int[n];//O número total de vértices no grafo.
+    
+    /**
+     * Prepara a estrutura para 'n' vértices
+     * @param n O número total de elementos (vértices), ex: grafo.getVertices().size()
+     */
+    public UnionFind(int n) {
+        // Armazena o número de vértices
+        this.numVertices = n;
+        
+        // memória para o array de pais (um para cada vértice)
+        pai = new int[n];
+        //  memória para o array de rank (um para cada vértice)
+        tamConjunto = new int[n]; 
+        // Inicialmente, cada vértice é seu próprio conjunto
+        for (int i = 0; i < n; i++) {
+            
+            // Cada elemento 'i' começa sendo seu próprio diretor/pai
+            pai[i] = i;
+            
+            // O rank inicial de um conjunto com um único elemento é 0
+            tamConjunto[i] = 0;
+        }
+    }
 
-       // Initialize(): Consome O(n) unidades de tempo.
-       // Inicialmente, cada vértice é o pai de seu próprio conjunto (componente)
-       for (int i = 0; i < n; i++) {
-           pai[i] = i;
-           tamConjunto[i] = 0; // Usaremos tamConjunto para simplicidade.
-       }
-   }
-   
-   // Supondo que os vértices são numerados de 0 a n-1. 
-   // Se seus vértices usam IDs arbitrárias (e.g., 10, 20, 50), você precisará de um mapa
-   // para mapear o ID do vértice (Integer) para um índice de array (0, 1, 2, ...).
+    /**
+     * Implementa o passo r := Find(u) (Encontrar)
+     * Retorna o diretor do conjunto ao qual 'i' pertence
+     * @param i O elemento (vértice) a ser encontrado.
+     * @return O ID do representante (raiz) do conjunto.
+     */
+    public int encontra(int i) {
+        
+        //Se 'i' é seu próprio pai ,então 'i' é a raiz do conjunto
+        if (pai[i] == i) {
+            return i;
+        }
 
-   /**
-    * Implementa o passo r := Find(u).
-    * Devolve o diretor da componente a que o vértice 'i' pertence [3].
-    * 
-    * Usa a heurística de Compressão de Caminho (Path Compression) para eficiência.
-    * Se implementada com heurísticas path compression e union-by-rank, consome 
-    * aproximadamente O(log* n) (tempo amortizado) por operação Find [6].
-    */
-   public int encontra(int i) {
-       // Encontra a raiz do conjunto (o diretor)
-       if (pai[i] == i) {
-           return i;
-       }
+        // Compressão de Caminho-heuristica
+        // Se 'i' não é a raiz, chamamos recursivamente 'encontra' para seu pai
+        // O resultado é ARMAZENADO DIRETAMENTE em 'pai[i]'.
+        // Isso "achata" a árvore
+        pai[i] = encontra(pai[i]);
+        
+        // Retorna a raiz que foi encontrada
+        return pai[i];
+    }
 
-       // Compressão de Caminho: Faz o vértice i apontar diretamente para a raiz
-       pai[i] = encontra(pai[i]);
-       return pai[i];
-   }
+    /**
+     * Implementa o passo Union(r, s) (União)
+     * Une os dois conjuntos (componentes) representados por 'r' e 's'
+     * @param r Um elemento (ou a raiz) do primeiro conjunto.
+     * @param s Um elemento (ou a raiz) do segundo conjunto.
+     */
+    public void uniao(int r, int s) {
+        
+        // Encontra o diretor do conjunto de 'r'
+        int raizR = encontra(r);
+        
+        // Encontra o diretor do conjunto de 's'
+        int raizS = encontra(s);
 
-   /**
-    * Implementa o passo Union(r, s) (Linha 10 do MST-Kruskal).
-    * Recebe os diretores (r e s) de duas componentes de F e faz a fusão delas [3].
-    * 
-    * Usa a heurística Union-by-Rank para garantir que a árvore permaneça "achatada" 
-    * (mantendo a eficiência). 
-    * Se implementada com heurística union-by-rank, consome O(1) unidades de tempo [5].
-    */
-   public void uniao(int r, int s) {
-       // Encontra as raízes (diretores) dos conjuntos de r e s (embora o Kruskal
-       // chame Union com as raízes r e s já encontradas)
-       int rootR = encontra(r);
-       int rootS = encontra(s);
-
-       // Se já estão na mesma componente, não faz nada (não deveria acontecer
-       // se a verificação r != s no Kruskal for correta, mas é uma boa prática)
-       if (rootR != rootS) {
-           // Heurística Union-by-Rank: anexa a árvore de rank menor à árvore de rank maior.
-           if (tamConjunto[rootR] < tamConjunto[rootS]) {
-        	   pai[rootR] = rootS;
-           } else if (tamConjunto[rootR] > tamConjunto[rootS]) {
-        	   pai[rootS] = rootR;
-           } else {
-               // Ranks são iguais, escolha um para ser o novo diretor e aumente seu rank
-        	   pai[rootS] = rootR;
-        	   tamConjunto[rootR]++;
-           }
-       }
-   }
+        // Se as raízes são diferentes, r e s estao em conjuntos diferentes
+        if (raizR != raizS) {
+            
+            // União por Rank (Union-by-Rank)
+            // veriifca se o tamanho de R é menor que o de S
+            if (tamConjunto[raizR] < tamConjunto[raizS]) {
+                // S se torna o pai de R(rankS continua o mesmo)
+                pai[raizR] = raizS;//anexa a árvore menor à árvore maior(r -> s)
+            } 
+            // Se o rank de R for maior que o de S
+            else if (tamConjunto[raizR] > tamConjunto[raizS]) {
+                // R se torna o pai de S(rankR continua o mesmo)
+                pai[raizS] = raizR;//anexa a árvore menor à árvore maior(s ->r)
+            } 
+            // Se os ranks são IGUAIS
+            else {
+                // escolhe-se qualquer um para ser o pai
+                pai[raizS] = raizR;//(r->s)
+                
+                // E o rank da nova raiz deve ser incrementado em 1
+                tamConjunto[raizR]++;
+            }
+        }
+    }
 }
