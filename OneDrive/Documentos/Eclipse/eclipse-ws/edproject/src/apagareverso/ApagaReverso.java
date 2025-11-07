@@ -1,4 +1,4 @@
-package com.apagareverso;
+package apagareverso;
 import java.util.*;
 import com.estrutura.GrafoND; 
 import com.estrutura.Aresta; 
