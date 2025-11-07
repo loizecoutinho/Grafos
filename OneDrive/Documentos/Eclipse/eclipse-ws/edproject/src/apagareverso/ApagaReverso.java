@@ -1,139 +1,154 @@
-package apagareverso;
+package com.apagareverso;
 import java.util.*;
-import estrutura.GrafoND;
-import estrutura.Aresta;
+import com.estrutura.GrafoND; 
+import com.estrutura.Aresta; 
 
 
-/**
- * Implementa o Algoritmo Apaga-Reverso (Reverse-Delete) para encontrar a MST.
- * O algoritmo começa com o grafo completo e remove arestas de maior custo
- * que não desconectam o grafo [7, 8].
+/*
+ * O algoritmo do Apaga-Reverso começa com o grafo completo e remove arestas de maior custo
+ * que não desconectam o grafo.
  */
 public class ApagaReverso {
 
-    private GrafoND grafoOriginal;
+    // esse é o grafo que iremos retirar as arestas para encontrar a MST.
+    final GrafoND grafoOriginal; //variavel final para armazenar o grafo original
 
     public ApagaReverso(GrafoND grafo) {
         this.grafoOriginal = grafo;
     }
 
-    /**
-     * Extrai e ordena todas as arestas de forma decrescente (do maior peso para o menor).
+    /*
+     * Extrai e ordena todas as arestas do maior peso para o menor
      */
     private List<Aresta> ordenarArestasDecrescente(GrafoND G) {
+        
+        //pega todas as arestas únicas do grafo
         Set<Aresta> arestaSet = G.extractAllEdges(); 
+        
+        //Converte o Set de arestas em uma ArrayList(p/ordenação)
         List<Aresta> arestaOrdenada = new ArrayList<>(arestaSet);
         
-        // Collections.sort() usa Aresta.compareTo() que ordena em ordem CRESCENTE [1].
+        //Ordena a lista
         Collections.sort(arestaOrdenada); 
         
-        // Inverte a lista para obter a ordem DECRESCENTE (Apaga-Reverso)
+        //Inverte a lista(decrescente) para processar as arestas de maior peso primeiro
         Collections.reverse(arestaOrdenada);
         
+        //Retorna a lista de arestas
         return arestaOrdenada;
     }
     
-    /**
-     * Verifica se o grafo G está conexo usando Busca em Largura (BFS).
-     * O(V + E) onde V é o número de vértices e E é o número de arestas restantes.
+    /*
+     * Verifica se o grafo G está conexo usando Busca em Largura
      */
     private boolean isConexo(GrafoND G) {
+        
+        // pega todos os vértices do grafo
         Set<Integer> vertices = G.getVertices(); 
-        if (vertices.isEmpty()) return true;
-
-        // Se o grafo tem vértices, escolhemos um para começar a travessia.
-        int startNode = vertices.iterator().next();
         
-        Set<Integer> visited = new HashSet<>();
-        Queue<Integer> queue = new LinkedList<>(); // Queue é usada para BFS [9, 10]
+        // Se o grafo não tem vértices, consideramos ele conexo
+        if (vertices.isEmpty()) return true; //Verdade Vácua
 
-        queue.add(startNode);
-        visited.add(startNode);
+        // Se o grafo tem vértices, inicia a BFS  a partir d eum vertice aleatorio
+        int noInicial = vertices.iterator().next();//pega o primeiro elemento de um Set
         
-        // Executa BFS
-        while (!queue.isEmpty()) {
-            int u = queue.poll();
+        // armazena os vértices que já foram visitados
+        Set<Integer> visitado = new HashSet<>();
+        
+        // Cria uma Fila para a BFS
+        Queue<Integer> fila = new LinkedList<>(); // LinkedList - listas conectadas
+
+        // Adiciona o nó inicial na fila e marca como visitado.
+        fila.add(noInicial);
+        visitado.add(noInicial);
+        
+        // Continua enquanto a fila não estiver vazia.
+        while (!fila.isEmpty()) {
             
-            // Usamos o método getVizinhos()
+            // Remove o próximo vértice da fila
+            int u = fila.poll();
+            
+            // pega todos os vizinhos de 'u'
             Map<Integer, Integer> vizinhos = G.getVizinhos(u);
-            
-            for (int v : vizinhos.keySet()) {
-                if (!visited.contains(v)) {
-                    visited.add(v);
-                    queue.add(v);
+           
+            for (int v : vizinhos.keySet()) {//keySet() retorna todos os IDs dos vizinhos
+                // verifica se 'v' não foi visitado
+                if (!visitado.contains(v)) {
+                    visitado.add(v);// marca 'v' como visitado.
+                    fila.add(v);//adiciona 'v' na fila para visitar seus vizinhos depois
                 }
             }
         }
         
-        // Se a busca alcançou todos os vértices, o grafo é conexo.
-        return visited.size() == vertices.size();
+        // Compara o número de vértices visitados com o número total de vértices no grafo.
+        return visitado.size() == vertices.size(); //iguais = conexo; diferente = desconexo
     }
 
-    /**
-     * Calcula a Árvore Geradora Mínima (MST) usando o Algoritmo Apaga-Reverso.
-     * Começa com o grafo completo e remove arestas de maior peso que não desconectam [8].
-     * 
-     * @return Um conjunto de arestas que formam a MST.
+    /*
+     * * @return Um conjunto de arestas que formam a MST.
      */
     public Set<Aresta> apagaReversoMST() {
         
-        // 1. Ordem decrescente das arestas
+        //pega a lista de todas as arestas
         List<Aresta> arestasDecrescentes = ordenarArestasDecrescente(this.grafoOriginal);
         
+        // Obtém o número total de vértices
         int V = grafoOriginal.getVertices().size();
         
-        // A MST deve ter V-1 arestas (para grafos conexos).
+        // Uma MST (em grafo conexo) tem no minimo V-1 arestas.
         int arestasMinimas = V - 1;
         
-        // 2. Itera e remove arestas
+        //percorre todas as arestas
         for (Aresta aresta : arestasDecrescentes) {
-            
+            // pega os vértices e o peso da aresta atual
             int u = aresta.getOrigem();
             int v = aresta.getDestino();
             int peso = aresta.getPeso();
             
-            // Só tentamos remover se o grafo ainda tiver mais que N-1 arestas.
+            //remove se tiver mais arestas que o mínimo necessário (V-1)
             if (grafoOriginal.extractAllEdges().size() > arestasMinimas) {
+                //Tenta remover a aresta (u, v) do grafo
+                grafoOriginal.removerAresta(u, v); //remoção temporária
                 
-                // A. Tenta remover a aresta
-                grafoOriginal.removerAresta(u, v); 
-                
-                // B. Verifica a Conectividade
+                //Verifica se o grafo continua conexo
                 if (isConexo(grafoOriginal)) {
-                    // Se continua conexo, a aresta de maior custo era redundante. 
-                    // Ela permanece removida.
+                    // O loop continua
                 } else {
-                    // A aresta é CRÍTICA, a remoção desconectou o grafo. Deve ser RESTAURADA.
-                    grafoOriginal.adicionarAresta(u, v, peso); 
+                    //aresta é crítica
+                    grafoOriginal.adicionarAresta(u, v, peso);//restaura para manter a conectividade
                 }
             } else {
-                // Já atingimos a MST.
+                //o grafo já atingiu o número mínimo de arestas (V-1),
                 break;
             }
         }
-        
-        // 3. Retorna as arestas restantes (a MST)
+        // Retorna o conjunto de arestas restantes
         return grafoOriginal.extractAllEdges();
     }
 
-    /**
-     * Imprime as arestas da MST resultante e calcula o custo total.
+    /*
+     * Imprime as arestas da MST resultante e calcula o custo total
      */
     public void imprimirMSTECustoTotal(Set<Aresta> mst) {
         
+        //acumulador para custo total
         double custoTotal = 0;
         
         System.out.println("\n--- Arestas da MST (Apaga-Reverso) ---");
         
-        // Itera sobre o conjunto de arestas da MST
+        // Itera sobre as arestas da mst
         for (Aresta aresta : mst) {
-            // Usa os métodos getOrigem, getDestino e getPeso da classe Aresta
+            
+            // Imprime origem, destino, peso
             System.out.println("Aresta: " + aresta.getOrigem() + " - " + aresta.getDestino() + " | Peso: " + aresta.getPeso());
-            custoTotal += aresta.getPeso(); // Soma o peso da aresta ao custo total
+            
+            // Adiciona o peso ao custo total.
+            custoTotal += aresta.getPeso();
         }
         
+        // Imprime o número final de arestas na MST.
         System.out.println("\nNúmero final de arestas: " + mst.size());
+        // Imprime o custo total 
         System.out.println("Custo Total da MST: " + custoTotal); 
     }
-    
 }
